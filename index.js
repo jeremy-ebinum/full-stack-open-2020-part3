@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const uniqueRandom = require("unique-random");
 const random = uniqueRandom(1, 10000);
 const morgan = require("morgan");
+const cors = require("cors");
 
 let persons = [
   {
@@ -88,37 +89,43 @@ app.delete("/api/persons/:id", (req, res) => {
   }
 });
 
-app.post("/api/persons", jsonParser, jsonParserErrorHandler, (req, res) => {
-  const body = req.body;
+app.post(
+  "/api/persons",
+  cors(),
+  jsonParser,
+  jsonParserErrorHandler,
+  (req, res) => {
+    const body = req.body;
 
-  if (req.header("Content-Type") !== "application/json") {
-    return res.status(400).json({ error: "unsupported Content-Type" });
+    if (req.header("Content-Type") !== "application/json") {
+      return res.status(400).json({ error: "unsupported Content-Type" });
+    }
+
+    if (!body.name || !body.number) {
+      return res.status(400).json({
+        error: "Missing data: empty name and/or number"
+      });
+    }
+
+    const nameExists = persons.some(person => person.name === body.name);
+
+    if (nameExists) {
+      return res.status(422).json({
+        error: "A person with this name already exists"
+      });
+    }
+
+    const person = {
+      name: body.name,
+      number: body.number,
+      id: random()
+    };
+
+    persons = persons.concat(person);
+
+    res.json(person);
   }
-
-  if (!body.name || !body.number) {
-    return res.status(400).json({
-      error: "Missing data: empty name and/or number"
-    });
-  }
-
-  const nameExists = persons.some(person => person.name === body.name);
-
-  if (nameExists) {
-    return res.status(422).json({
-      error: "A person with this name already exists"
-    });
-  }
-
-  const person = {
-    name: body.name,
-    number: body.number,
-    id: random()
-  };
-
-  persons = persons.concat(person);
-
-  res.json(person);
-});
+);
 
 const PORT = 3001;
 
