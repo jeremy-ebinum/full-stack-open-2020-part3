@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const { handleError, ErrorHandler } = require("./helpers/error");
 const bodyParser = require("body-parser");
 const uniqueRandom = require("unique-random");
 const random = uniqueRandom(1, 10000);
@@ -29,6 +30,12 @@ let persons = [
   }
 ];
 
+const allowedPostContentTypes = [
+  "application/json",
+  "application/json;charset=utf-8",
+  "application/json; charset=utf-8"
+];
+
 const jsonParser = bodyParser.json("application/*+json");
 const jsonParserErrorHandler = (err, req, res, next) => {
   if (
@@ -37,7 +44,7 @@ const jsonParserErrorHandler = (err, req, res, next) => {
     err.status < 500 &&
     err.message.indexOf("JSON") !== -1
   ) {
-    res.send({ error: "Malformed JSON data" });
+    throw new ErrorHandler(400, "Malformed JSON");
   } else {
     next();
   }
@@ -97,22 +104,18 @@ app.post(
   (req, res) => {
     const body = req.body;
 
-    if (req.header("Content-Type") !== "application/json") {
-      return res.status(400).json({ error: "unsupported Content-Type" });
+    if (!allowedPostContentTypes.includes(req.header("Content-Type"))) {
+      throw new ErrorHandler(400, "Unsupported content type");
     }
 
     if (!body.name || !body.number) {
-      return res.status(400).json({
-        error: "Missing data: empty name and/or number"
-      });
+      throw new ErrorHandler(400, "Missing name and/or number fields");
     }
 
     const nameExists = persons.some(person => person.name === body.name);
 
     if (nameExists) {
-      return res.status(422).json({
-        error: "A person with this name already exists"
-      });
+      throw new ErrorHandler(422, "A person with this name already exists");
     }
 
     const person = {
@@ -126,6 +129,15 @@ app.post(
     res.json(person);
   }
 );
+
+app.use((err, req, res, next) => {
+  if (err instanceof ErrorHandler) {
+    handleError(err, res);
+  } else {
+    throw err;
+  }
+  next();
+});
 
 const PORT = 3001;
 
