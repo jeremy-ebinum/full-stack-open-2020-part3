@@ -1,11 +1,8 @@
 ### Get Persons Collection
 GET http://localhost:3001/api/persons
 
-### Get Person w/ valid id
-GET http://localhost:3001/persons/1
-
-### Get Person w/ invalid id
-GET http://localhost:3001/persons/-1
+### Get Person w/ id
+GET http://localhost:3001/api/persons/1
 
 ### Get Info Page
 GET http://localhost:3001/info
