@@ -1,6 +1,9 @@
+@baseUrl = https://whispering-lowlands-47274.herokuapp.com
+@contentType = application/json;charset=utf-8
+
 ### POST person with valid body (send multiple times to test name conflicts)
-POST http://localhost:3001/api/persons/
-Content-Type: application/json
+POST {{baseUrl}}/api/persons/
+Content-Type: {{contentType}}
 
 {
     "name": "Spam and Eggs",
@@ -8,8 +11,8 @@ Content-Type: application/json
 }
 
 ### POST person with malformed body
-POST http://localhost:3001/api/persons/
-Content-Type: application/json
+POST {{baseUrl}}/api/persons/
+Content-Type: {{contentType}}
 
 {
     "name": "Spam and Eggs",
@@ -17,11 +20,11 @@ Content-Type: application/json
 }
 
 ### POST person with empty body
-POST http://localhost:3001/api/persons/
-Content-Type: application/json
+POST {{baseUrl}}/api/persons/
+Content-Type: {{contentType}}
 
 ### POST person with wrong Content-Type
-POST http://localhost:3001/api/persons/
+POST {{baseUrl}}/api/persons/
 Content-Type: application/not-json
 
 {
