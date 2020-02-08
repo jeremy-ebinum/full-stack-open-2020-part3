@@ -1,4 +1,4 @@
-### POST person with valid data (send multiple times to test name conflicts)
+### POST person with valid body (send multiple times to test name conflicts)
 POST http://localhost:3001/api/persons/
 Content-Type: application/json
 
@@ -7,6 +7,24 @@ Content-Type: application/json
     "number": "2348000000000"
 }
 
-### POST person with invalid data
+### POST person with malformed body
 POST http://localhost:3001/api/persons/
 Content-Type: application/json
+
+{
+    "name": "Spam and Eggs",
+    "number": spam
+}
+
+### POST person with empty body
+POST http://localhost:3001/api/persons/
+Content-Type: application/json
+
+### POST person with wrong Content-Type
+POST http://localhost:3001/api/persons/
+Content-Type: application/not-json
+
+{
+    "name": "Spam and Eggs and Spam",
+    "number": "2348000000000"
+}
