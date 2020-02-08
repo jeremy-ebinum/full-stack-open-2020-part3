@@ -1,0 +1,5 @@
+### Get Persons Collection
+GET http://localhost:3001/api/persons
+
+### Get Info Page
+GET http://localhost:3001/info
