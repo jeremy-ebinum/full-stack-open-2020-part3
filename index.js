@@ -2,6 +2,8 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const jsonParser = bodyParser.json();
+const uniqueRandom = require("unique-random");
+const random = uniqueRandom(1, 10000);
 
 let persons = [
   {
@@ -60,6 +62,34 @@ app.delete("/api/persons/:id", (req, res) => {
   } else {
     res.status(404).end();
   }
+});
+
+app.post("/api/persons", jsonParser, (req, res) => {
+  const body = req.body;
+
+  if (!body.name || !body.number) {
+    return res.status(400).json({
+      error: "Invalid data: empty name and/or number"
+    });
+  }
+
+  const nameExists = persons.some(person => person.name === body.name);
+
+  if (nameExists) {
+    return res.status(422).json({
+      error: "A person with this name already exists"
+    });
+  }
+
+  const person = {
+    name: body.name,
+    number: body.number,
+    id: random()
+  };
+
+  persons = persons.concat(person);
+
+  res.json(person);
 });
 
 const PORT = 3001;

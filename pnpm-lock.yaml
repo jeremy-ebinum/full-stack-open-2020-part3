@@ -1,6 +1,7 @@
 dependencies:
   body-parser: 1.19.0
   express: 4.17.1
+  unique-random: 2.1.0
 devDependencies:
   nodemon: 2.0.2
 lockfileVersion: 5.1
@@ -1039,6 +1040,12 @@ packages:
     dev: true
     resolution:
       integrity: sha1-Il9rngM3Zj4Njnz9aG/Cg2zKznY=
+  /unique-random/2.1.0:
+    dev: false
+    engines:
+      node: '>=6'
+    resolution:
+      integrity: sha512-iQ1ZgWac3b8YxGThecQFRQiqgk6xFERRwHZIWeVVsqlbmgCRl0PY13R4mUkodNgctmg5b5odG1nyW/IbOxQTqg==
   /unique-string/1.0.0:
     dependencies:
       crypto-random-string: 1.0.0
@@ -1133,3 +1140,4 @@ specifiers:
   body-parser: ^1.19.0
   express: ^4.17.1
   nodemon: ^2.0.2
+  unique-random: ^2.1.0
