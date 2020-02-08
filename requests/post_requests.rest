@@ -1,0 +1,12 @@
+### POST person with valid data (send multiple times to test name conflicts)
+POST http://localhost:3001/api/persons/
+Content-Type: application/json
+
+{
+    "name": "Spam and Eggs",
+    "number": "2348000000000"
+}
+
+### POST person with invalid data
+POST http://localhost:3001/api/persons/
+Content-Type: application/json

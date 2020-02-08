@@ -1,2 +1,5 @@
-### Delete person w/ id
+### Delete person w/ valid id (non empty collection)
 DELETE http://localhost:3001/api/persons/1
+
+### Delete person w/ invalid id
+DELETE http://localhost:3001/api/persons/-1
