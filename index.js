@@ -1,7 +1,6 @@
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
-const jsonParser = bodyParser.json();
 const uniqueRandom = require("unique-random");
 const random = uniqueRandom(1, 10000);
 const morgan = require("morgan");
@@ -28,6 +27,20 @@ let persons = [
     id: 4
   }
 ];
+
+const jsonParser = bodyParser.json("application/*+json");
+const jsonParserErrorHandler = (err, req, res, next) => {
+  if (
+    err instanceof SyntaxError &&
+    err.status >= 400 &&
+    err.status < 500 &&
+    err.message.indexOf("JSON") !== -1
+  ) {
+    res.send({ error: "Malformed JSON data" });
+  } else {
+    next();
+  }
+};
 
 morgan.token("data", function(req, res) {
   const body = req.body;
@@ -75,12 +88,16 @@ app.delete("/api/persons/:id", (req, res) => {
   }
 });
 
-app.post("/api/persons", jsonParser, (req, res) => {
+app.post("/api/persons", jsonParser, jsonParserErrorHandler, (req, res) => {
   const body = req.body;
+
+  if (req.header("Content-Type") !== "application/json") {
+    return res.status(400).json({ error: "unsupported Content-Type" });
+  }
 
   if (!body.name || !body.number) {
     return res.status(400).json({
-      error: "Invalid data: empty name and/or number"
+      error: "Missing data: empty name and/or number"
     });
   }
 
