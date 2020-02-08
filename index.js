@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const jsonParser = bodyParser.json();
 const uniqueRandom = require("unique-random");
 const random = uniqueRandom(1, 10000);
+const morgan = require("morgan");
 
 let persons = [
   {
@@ -27,6 +28,16 @@ let persons = [
     id: 4
   }
 ];
+
+morgan.token("data", function(req, res) {
+  const body = req.body;
+
+  return JSON.stringify(body);
+});
+
+app.use(
+  morgan(":method :url :status :res[content-length] - :response-time ms :data")
+);
 
 app.get("/api/persons", (req, res) => {
   res.json(persons);
