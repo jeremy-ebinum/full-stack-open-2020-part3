@@ -7,7 +7,7 @@ const cors = require("cors");
 
 const Person = require("./models/person");
 
-const allowedPostContentTypes = [
+const createUpdateContentTypes = [
   "application/json",
   "application/json;charset=utf-8",
   "application/json; charset=utf-8"
@@ -21,7 +21,7 @@ const jsonParserErrorHandler = (err, req, res, next) => {
     err.status < 500 &&
     err.message.indexOf("JSON") !== -1
   ) {
-    throw new ErrorHandler(400, "Malformed JSON");
+    throw new ErrorHandler(400, "Malformatted JSON");
   } else {
     next();
   }
@@ -59,7 +59,7 @@ app.get("/api/persons/:id", (req, res, next) => {
     .catch(err => {
       console.error(err);
       if (err.name === "CastError" && err.kind === "ObjectId") {
-        next(new ErrorHandler(400, "Malformed Id"));
+        next(new ErrorHandler(400, "Malformatted Id"));
       }
 
       next(err);
@@ -92,7 +92,7 @@ app.delete("/api/persons/:id", (req, res) => {
     .catch(err => {
       console.error(err);
       if (err.name === "CastError" && err.kind === "ObjectId") {
-        next(new ErrorHandler(400, "Malformed Id"));
+        next(new ErrorHandler(400, "Malformatted Id"));
       }
 
       next(err);
@@ -102,7 +102,7 @@ app.delete("/api/persons/:id", (req, res) => {
 app.post("/api/persons", createUpdateMiddlewares, (req, res, next) => {
   const body = req.body;
 
-  if (!allowedPostContentTypes.includes(req.header("Content-Type"))) {
+  if (!createUpdateContentTypes.includes(req.header("Content-Type"))) {
     throw new ErrorHandler(400, "Unsupported content type");
   }
 
@@ -136,7 +136,7 @@ app.post("/api/persons", createUpdateMiddlewares, (req, res, next) => {
 app.put("/api/persons/:id", createUpdateMiddlewares, (req, res, next) => {
   const body = req.body;
 
-  if (!allowedPostContentTypes.includes(req.header("Content-Type"))) {
+  if (!createUpdateContentTypes.includes(req.header("Content-Type"))) {
     throw new ErrorHandler(400, "Unsupported content type");
   }
 
@@ -162,7 +162,7 @@ app.put("/api/persons/:id", createUpdateMiddlewares, (req, res, next) => {
     .catch(err => {
       console.error(err);
       if (err.name === "CastError" && err.kind === "ObjectId") {
-        next(new ErrorHandler(400, "Malformed Id"));
+        next(new ErrorHandler(400, "Malformatted Id"));
       }
 
       next(err);
