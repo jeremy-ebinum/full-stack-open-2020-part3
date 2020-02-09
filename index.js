@@ -2,8 +2,6 @@ const express = require("express");
 const app = express();
 const { handleError, ErrorHandler } = require("./helpers/error");
 const bodyParser = require("body-parser");
-const uniqueRandom = require("unique-random");
-const random = uniqueRandom(1, 10000);
 const morgan = require("morgan");
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -69,7 +67,6 @@ app.get("/api/persons", (req, res) => {
   Person.find({}).then(persons => {
     res.json(persons.map(person => person.toJSON()));
   });
-  // res.json(persons);
 });
 
 app.get("/api/persons/:id", (req, res) => {
@@ -131,21 +128,34 @@ app.post(
       throw new ErrorHandler(400, "Missing name and/or number fields");
     }
 
-    const nameExists = persons.some(person => person.name === body.name);
+    // const nameExists = persons.some(person => person.name === body.name);
 
-    if (nameExists) {
-      throw new ErrorHandler(422, "A person with this name already exists");
-    }
+    // if (nameExists) {
+    //   throw new ErrorHandler(422, "A person with this name already exists");
+    // }
 
-    const person = {
+    const person = new Person({
       name: body.name,
-      number: body.number,
-      id: random()
-    };
+      number: body.number
+    });
 
-    persons = persons.concat(person);
+    person
+      .save()
+      .then(result => {
+        res.json(person.toJSON());
+      })
+      .catch(err => {
+        console.error(error);
+      });
+    // const person = {
+    //   name: body.name,
+    //   number: body.number,
+    //   id: random()
+    // };
 
-    res.json(person);
+    // persons = persons.concat(person);
+
+    // res.json(person);
   }
 );
 
