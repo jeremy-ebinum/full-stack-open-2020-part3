@@ -161,6 +161,12 @@ app.put("/api/persons/:id", createUpdateMiddlewares, (req, res, next) => {
     });
 });
 
+const unknownRoute = (req, res) => {
+  res.status(404).end();
+};
+
+app.use(unknownRoute);
+
 app.use((err, req, res, next) => {
   if (!err) next();
 
