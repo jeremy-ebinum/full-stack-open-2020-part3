@@ -7,29 +7,6 @@ const cors = require("cors");
 
 const Person = require("./models/person");
 
-let persons = [
-  {
-    name: "Arto Hellas",
-    number: "040-123456",
-    id: 1
-  },
-  {
-    name: "Ada Lovelace",
-    number: "39-44-5323523",
-    id: 2
-  },
-  {
-    name: "Dan Abramov",
-    number: "12-43-234345",
-    id: 3
-  },
-  {
-    name: "Mary Poppendieck",
-    number: "39-23-6423122",
-    id: 4
-  }
-];
-
 const allowedPostContentTypes = [
   "application/json",
   "application/json;charset=utf-8",
@@ -152,6 +129,42 @@ app.post("/api/persons", createUpdateMiddlewares, (req, res, next) => {
     })
     .catch(err => {
       console.error(error);
+      next(err);
+    });
+});
+
+app.put("/api/persons/:id", createUpdateMiddlewares, (req, res, next) => {
+  const body = req.body;
+
+  if (!allowedPostContentTypes.includes(req.header("Content-Type"))) {
+    throw new ErrorHandler(400, "Unsupported content type");
+  }
+
+  if (!body.name || !body.number) {
+    throw new ErrorHandler(400, "Missing name and/or number fields");
+  }
+
+  const person = {
+    name: body.name,
+    number: body.number
+  };
+
+  Person.findByIdAndUpdate(req.params.id, person, {
+    new: true
+  })
+    .then(updatedPerson => {
+      if (updatedPerson) {
+        res.json(updatedPerson.toJSON());
+      } else {
+        res.status(404).end();
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      if (err.name === "CastError" && err.kind === "ObjectId") {
+        next(new ErrorHandler(400, "Malformed Id"));
+      }
+
       next(err);
     });
 });
