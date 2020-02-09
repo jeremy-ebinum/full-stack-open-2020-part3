@@ -6,6 +6,9 @@ const uniqueRandom = require("unique-random");
 const random = uniqueRandom(1, 10000);
 const morgan = require("morgan");
 const cors = require("cors");
+const mongoose = require("mongoose");
+
+const Person = require("./models/person");
 
 let persons = [
   {
@@ -63,27 +66,41 @@ app.use(
 app.use(express.static("build"));
 
 app.get("/api/persons", (req, res) => {
-  res.json(persons);
+  Person.find({}).then(persons => {
+    res.json(persons.map(person => person.toJSON()));
+  });
+  // res.json(persons);
 });
 
 app.get("/api/persons/:id", (req, res) => {
-  const id = Number(req.params.id);
+  const isValidId = mongoose.Types.ObjectId.isValid(req.params.id);
 
-  const person = persons.find(person => person.id === id);
+  if (!isValidId) return res.status(404).end();
 
-  if (person) {
-    res.json(person);
-  } else {
-    res.status(404).end();
-  }
+  Person.findById(req.params.id)
+    .then(person => {
+      if (person) {
+        res.json(person.toJSON());
+      } else {
+        res.status(404).end();
+      }
+    })
+    .catch(err => {
+      console.error(err.message);
+    });
 });
 
 app.get("/info", (req, res) => {
-  const message =
-    `<p>Phonebook has info for ${persons.length} people</p>` +
-    `<p>${new Date()}</p>`;
-
-  res.send(message);
+  Person.estimatedDocumentCount({})
+    .then(count => {
+      const message =
+        `<p>Phonebook has info for ${count} people</p>` +
+        `<p>${new Date()}</p>`;
+      res.send(message);
+    })
+    .catch(err => {
+      console.error(err);
+    });
 });
 
 app.delete("/api/persons/:id", (req, res) => {
