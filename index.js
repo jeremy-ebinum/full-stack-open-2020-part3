@@ -4,7 +4,6 @@ const { handleError, ErrorHandler } = require("./helpers/error");
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const cors = require("cors");
-const mongoose = require("mongoose");
 
 const Person = require("./models/person");
 
@@ -51,6 +50,8 @@ const jsonParserErrorHandler = (err, req, res, next) => {
   }
 };
 
+const createUpdateMiddlewares = [cors(), jsonParser, jsonParserErrorHandler];
+
 morgan.token("data", function(req, res) {
   const body = req.body;
 
@@ -69,11 +70,7 @@ app.get("/api/persons", (req, res) => {
   });
 });
 
-app.get("/api/persons/:id", (req, res) => {
-  const isValidId = mongoose.Types.ObjectId.isValid(req.params.id);
-
-  if (!isValidId) return res.status(404).end();
-
+app.get("/api/persons/:id", (req, res, next) => {
   Person.findById(req.params.id)
     .then(person => {
       if (person) {
@@ -83,11 +80,16 @@ app.get("/api/persons/:id", (req, res) => {
       }
     })
     .catch(err => {
-      console.error(err.message);
+      console.error(err);
+      if (err.name === "CastError" && err.kind === "ObjectId") {
+        next(new ErrorHandler(400, "Malformed Id"));
+      }
+
+      next(err);
     });
 });
 
-app.get("/info", (req, res) => {
+app.get("/info", (req, res, next) => {
   Person.estimatedDocumentCount({})
     .then(count => {
       const message =
@@ -97,6 +99,7 @@ app.get("/info", (req, res) => {
     })
     .catch(err => {
       console.error(err);
+      next(err);
     });
 });
 
@@ -112,60 +115,48 @@ app.delete("/api/persons/:id", (req, res) => {
   }
 });
 
-app.post(
-  "/api/persons",
-  cors(),
-  jsonParser,
-  jsonParserErrorHandler,
-  (req, res) => {
-    const body = req.body;
+app.post("/api/persons", createUpdateMiddlewares, (req, res, next) => {
+  const body = req.body;
 
-    if (!allowedPostContentTypes.includes(req.header("Content-Type"))) {
-      throw new ErrorHandler(400, "Unsupported content type");
-    }
-
-    if (!body.name || !body.number) {
-      throw new ErrorHandler(400, "Missing name and/or number fields");
-    }
-
-    // const nameExists = persons.some(person => person.name === body.name);
-
-    // if (nameExists) {
-    //   throw new ErrorHandler(422, "A person with this name already exists");
-    // }
-
-    const person = new Person({
-      name: body.name,
-      number: body.number
-    });
-
-    person
-      .save()
-      .then(result => {
-        res.json(person.toJSON());
-      })
-      .catch(err => {
-        console.error(error);
-      });
-    // const person = {
-    //   name: body.name,
-    //   number: body.number,
-    //   id: random()
-    // };
-
-    // persons = persons.concat(person);
-
-    // res.json(person);
+  if (!allowedPostContentTypes.includes(req.header("Content-Type"))) {
+    throw new ErrorHandler(400, "Unsupported content type");
   }
-);
+
+  if (!body.name || !body.number) {
+    throw new ErrorHandler(400, "Missing name and/or number fields");
+  }
+
+  Person.exists({ name: body.name }, (err, exists) => {
+    if (err) next(err);
+    if (exists) {
+      next(new ErrorHandler(422, "A person with this name already exists"));
+    }
+  });
+
+  const person = new Person({
+    name: body.name,
+    number: body.number
+  });
+
+  person
+    .save()
+    .then(result => {
+      res.json(person.toJSON());
+    })
+    .catch(err => {
+      console.error(error);
+      next(err);
+    });
+});
 
 app.use((err, req, res, next) => {
+  if (!err) next();
+
   if (err instanceof ErrorHandler) {
     handleError(err, res);
   } else {
-    throw err;
+    next(err);
   }
-  next();
 });
 
 const PORT = process.env.PORT || 3001;
