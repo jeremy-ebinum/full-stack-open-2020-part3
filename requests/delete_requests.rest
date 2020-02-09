@@ -1,6 +1,0 @@
-@baseUrl = https://whispering-lowlands-47274.herokuapp.com
-### Delete person w/ valid id (non empty collection)
-DELETE {{baseUrl}}/api/persons/1
-
-### Delete person w/ invalid id
-DELETE {{baseUrl}}/api/persons/-1
