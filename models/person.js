@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { ErrorHandler } = require("../helpers/error");
 
 const url = process.env.MONGODB_URI;
 console.log("connecting to", url);
@@ -15,6 +16,17 @@ const personSchema = mongoose.Schema({
   name: String,
   number: String
 });
+
+personSchema.statics.savePerson = function(person) {
+  return this.find({ name: person.name }).then(docs => {
+    if (docs.length) {
+      const error = new ErrorHandler(422, "Name exists already");
+      return Promise.reject(error);
+    } else {
+      return person.save();
+    }
+  });
+};
 
 personSchema.set("toJSON", {
   transform: (document, returnedObject) => {

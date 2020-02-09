@@ -110,25 +110,17 @@ app.post("/api/persons", createUpdateMiddlewares, (req, res, next) => {
     throw new ErrorHandler(400, "Missing name and/or number fields");
   }
 
-  Person.exists({ name: body.name }, (err, exists) => {
-    if (err) next(err);
-    if (exists) {
-      next(new ErrorHandler(422, "A person with this name already exists"));
-    }
-  });
-
   const person = new Person({
     name: body.name,
     number: body.number
   });
 
-  person
-    .save()
+  Person.savePerson(person)
     .then(result => {
       res.json(person.toJSON());
     })
     .catch(err => {
-      console.error(error);
+      console.error(err);
       next(err);
     });
 });
