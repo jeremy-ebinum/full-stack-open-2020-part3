@@ -104,15 +104,22 @@ app.get("/info", (req, res, next) => {
 });
 
 app.delete("/api/persons/:id", (req, res) => {
-  const id = Number(req.params.id);
-  const person = persons.find(person => person.id === id);
+  Person.findByIdAndDelete(req.params.id)
+    .then(deletedPerson => {
+      if (deletedPerson) {
+        res.status(204).end();
+      } else {
+        res.status(404).end();
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      if (err.name === "CastError" && err.kind === "ObjectId") {
+        next(new ErrorHandler(400, "Malformed Id"));
+      }
 
-  if (person) {
-    persons = persons.filter(person => person.id !== id);
-    res.status(204).end();
-  } else {
-    res.status(404).end();
-  }
+      next(err);
+    });
 });
 
 app.post("/api/persons", createUpdateMiddlewares, (req, res, next) => {
