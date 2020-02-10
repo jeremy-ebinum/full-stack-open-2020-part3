@@ -45,6 +45,33 @@ Content-Type: {{contentType}}
     "number": "2348000000000"
 }
 
+### POST person to fail name validation
+POST {{baseUrl}}/api/persons HTTP/1.1
+Content-Type: {{contentType}}
+
+{
+    "name": "me",
+    "number": "2348000000000"
+}
+
+### POST person to fail number validation
+POST {{baseUrl}}/api/persons HTTP/1.1
+Content-Type: {{contentType}}
+
+{
+    "name": "Fail number validation",
+    "number": "234"
+}
+
+### POST person to fail name and number validation
+POST {{baseUrl}}/api/persons HTTP/1.1
+Content-Type: {{contentType}}
+
+{
+    "name": "me",
+    "number": "234"
+}
+
 ### POST person with malformatted body
 POST {{baseUrl}}/api/persons/ HTTP/1.1
 Content-Type: {{contentType}}
