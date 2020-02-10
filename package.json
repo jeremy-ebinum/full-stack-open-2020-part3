@@ -10,7 +10,8 @@
     "build:ui": "rm -rf build && cd ../full-stack-open-2019/part2/phonebook && npm run build --prod && cp -r build ../../../full-stack-open-2019-part3",
     "deploy": "git push heroku master",
     "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && npm run deploy",
-    "logs:prod": "heroku logs --tail"
+    "logs:prod": "heroku logs --tail",
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",
@@ -32,6 +33,9 @@
   },
   "devDependencies": {
     "dotenv": "^8.2.0",
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.18.2",
     "nodemon": "^2.0.2"
   },
   "engines": {
