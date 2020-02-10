@@ -21,7 +21,7 @@ const jsonParserErrorHandler = (err, req, res, next) => {
     err.status < 500 &&
     err.message.indexOf("JSON") !== -1
   ) {
-    throw new ErrorHandler(400, "Malformatted JSON");
+    throw new ErrorHandler(400, ["Malformatted JSON"]);
   } else {
     next();
   }
@@ -59,7 +59,7 @@ app.get("/api/persons/:id", (req, res, next) => {
     .catch(err => {
       console.error(err);
       if (err.name === "CastError" && err.kind === "ObjectId") {
-        next(new ErrorHandler(400, "Malformatted Id"));
+        next(new ErrorHandler(400, ["Malformatted Id"]));
       }
 
       next(err);
@@ -92,7 +92,7 @@ app.delete("/api/persons/:id", (req, res, next) => {
     .catch(err => {
       console.error(err);
       if (err.name === "CastError" && err.kind === "ObjectId") {
-        next(new ErrorHandler(400, "Malformatted Id"));
+        next(new ErrorHandler(400, ["Malformatted Id"]));
       }
 
       next(err);
@@ -103,11 +103,11 @@ app.post("/api/persons", createUpdateMiddlewares, (req, res, next) => {
   const body = req.body;
 
   if (!createUpdateContentTypes.includes(req.header("Content-Type"))) {
-    throw new ErrorHandler(400, "Unsupported content type");
+    throw new ErrorHandler(400, ["Unsupported content type"]);
   }
 
   if (!body.name || !body.number) {
-    throw new ErrorHandler(400, "Missing name and/or number fields");
+    throw new ErrorHandler(400, ["Missing name and/or number fields"]);
   }
 
   const person = new Person({
@@ -115,13 +115,31 @@ app.post("/api/persons", createUpdateMiddlewares, (req, res, next) => {
     number: body.number
   });
 
-  Person.savePerson(person)
-    .then(result => {
-      res.json(person.toJSON());
+  person
+    .save()
+    .then(person => person.toJSON())
+    .then(formattedPerson => {
+      res.json(formattedPerson);
     })
     .catch(err => {
-      console.error(err);
-      next(err);
+      if (err.name === "ValidatorError" || err.name === "ValidationError") {
+        const keys = Object.keys(err.errors);
+        const messages = keys.map(e => {
+          const error = err.errors[e];
+          const field = error.path[0].toUpperCase() + error.path.substr(1);
+
+          if (error.kind === "unique") {
+            return `${field} already exists`;
+          } else if (error.kind === "minlength") {
+            const length = error.message.match(/length \((\d+)\)/)[1];
+            return `${field} must be at least ${length} characters long`;
+          }
+        });
+
+        next(new ErrorHandler(422, messages));
+      } else {
+        next(err);
+      }
     });
 });
 
@@ -129,11 +147,11 @@ app.put("/api/persons/:id", createUpdateMiddlewares, (req, res, next) => {
   const body = req.body;
 
   if (!createUpdateContentTypes.includes(req.header("Content-Type"))) {
-    throw new ErrorHandler(400, "Unsupported content type");
+    throw new ErrorHandler(400, ["Unsupported content type"]);
   }
 
   if (!body.name || !body.number) {
-    throw new ErrorHandler(400, "Missing name and/or number fields");
+    throw new ErrorHandler(400, ["Missing name and/or number fields"]);
   }
 
   const person = {
@@ -154,7 +172,7 @@ app.put("/api/persons/:id", createUpdateMiddlewares, (req, res, next) => {
     .catch(err => {
       console.error(err);
       if (err.name === "CastError" && err.kind === "ObjectId") {
-        next(new ErrorHandler(400, "Malformatted Id"));
+        next(new ErrorHandler(400, ["Malformatted Id"]));
       }
 
       next(err);

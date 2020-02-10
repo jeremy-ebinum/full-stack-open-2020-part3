@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const uniqueValidator = require("mongoose-unique-validator");
 const { ErrorHandler } = require("../helpers/error");
 
 const url = process.env.MONGODB_URI;
@@ -13,20 +14,18 @@ mongoose
   });
 
 const personSchema = mongoose.Schema({
-  name: String,
-  number: String
+  name: {
+    type: String,
+    minlength: 3,
+    unique: true
+  },
+  number: {
+    type: String,
+    minlength: 8
+  }
 });
 
-personSchema.statics.savePerson = function(person) {
-  return this.find({ name: person.name }).then(docs => {
-    if (docs.length) {
-      const error = new ErrorHandler(422, "Name exists already");
-      return Promise.reject(error);
-    } else {
-      return person.save();
-    }
-  });
-};
+personSchema.plugin(uniqueValidator);
 
 personSchema.set("toJSON", {
   transform: (document, returnedObject) => {
@@ -35,5 +34,8 @@ personSchema.set("toJSON", {
     delete returnedObject.__v;
   }
 });
+
+mongoose.set("useCreateIndex", true);
+mongoose.set("useFindAndModify", false);
 
 module.exports = mongoose.model("Person", personSchema, "persons");
