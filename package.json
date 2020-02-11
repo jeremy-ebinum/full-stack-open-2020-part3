@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
+    "start": "node -r dotenv/config index.js",
     "watch": "nodemon -r dotenv/config index.js",
     "build:ui": "rm -rf build && cd ../full-stack-open-2019/part2/phonebook && npm run build --prod && cp -r build ../../../full-stack-open-2019-part3",
     "deploy": "git push heroku master",
