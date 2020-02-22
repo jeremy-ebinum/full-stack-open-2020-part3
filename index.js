@@ -8,11 +8,6 @@ const { handleError, ErrorHandler } = require("./helpers/error");
 
 const Person = require("./models/person");
 
-const createUpdateContentTypes = [
-  "application/json",
-  "application/json;charset=utf-8",
-  "application/json; charset=utf-8",
-];
 
 const jsonParser = bodyParser.json("application/*+json");
 const jsonParserErrorHandler = (err, req, res, next) => {
@@ -103,10 +98,6 @@ app.delete("/api/persons/:id", (req, res, next) => {
 app.post("/api/persons", createUpdateMiddlewares, (req, res, next) => {
   const { body } = req;
 
-  if (!createUpdateContentTypes.includes(req.header("Content-Type"))) {
-    throw new ErrorHandler(400, ["Unsupported content type"]);
-  }
-
   if (!body.name || !body.number) {
     throw new ErrorHandler(400, ["Missing name and/or number fields"]);
   }
@@ -148,10 +139,6 @@ app.post("/api/persons", createUpdateMiddlewares, (req, res, next) => {
 
 app.put("/api/persons/:id", createUpdateMiddlewares, (req, res, next) => {
   const { body } = req;
-
-  if (!createUpdateContentTypes.includes(req.header("Content-Type"))) {
-    throw new ErrorHandler(400, ["Unsupported content type"]);
-  }
 
   if (!body.name || !body.number) {
     throw new ErrorHandler(400, ["Missing name and/or number fields"]);
