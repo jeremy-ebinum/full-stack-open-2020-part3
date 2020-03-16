@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node -r dotenv/config index.js",
     "watch": "nodemon -r dotenv/config index.js",
-    "build:ui": "rm -rf build && cd ../full-stack-open-2019/part2/phonebook && npm run build --prod && cp -r build ../../../full-stack-open-2019-part3",
+    "build:ui": "rm -rf build && cd ../full-stack-open-2020/part2/phonebook && npm run build --prod && cp -r build ../../../full-stack-open-2020-part3",
     "deploy": "git push heroku master",
     "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && npm run deploy",
     "logs:prod": "heroku logs --tail",
@@ -15,14 +15,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jeremy-ebinum/full-stack-open-2019-part3.git"
+    "url": "git+https://github.com/jeremy-ebinum/full-stack-open-2020-part3.git"
   },
   "author": "Jeremy Ebinum",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/jeremy-ebinum/full-stack-open-2019-part3/issues"
+    "url": "https://github.com/jeremy-ebinum/full-stack-open-2020-part3/issues"
   },
-  "homepage": "https://github.com/jeremy-ebinum/full-stack-open-2019-part3#readme",
+  "homepage": "https://github.com/jeremy-ebinum/full-stack-open-2020-part3#readme",
   "dependencies": {
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
