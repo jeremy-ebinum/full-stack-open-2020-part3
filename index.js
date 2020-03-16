@@ -8,14 +8,13 @@ const { handleError, ErrorHandler } = require("./helpers/error");
 
 const Person = require("./models/person");
 
-
 const jsonParser = bodyParser.json("application/*+json");
 const jsonParserErrorHandler = (err, req, res, next) => {
   if (
-    err instanceof SyntaxError
-    && err.status >= 400
-    && err.status < 500
-    && err.message.indexOf("JSON") !== -1
+    err instanceof SyntaxError &&
+    err.status >= 400 &&
+    err.status < 500 &&
+    err.message.indexOf("JSON") !== -1
   ) {
     throw new ErrorHandler(400, ["Malformatted JSON"]);
   } else {
@@ -33,7 +32,7 @@ morgan.token("data", (req, res) => {
 });
 
 app.use(
-  morgan(":method :url :status :res[content-length] - :response-time ms :data"),
+  morgan(":method :url :status :res[content-length] - :response-time ms :data")
 );
 
 app.use(express.static("build"));
@@ -66,8 +65,9 @@ app.get("/api/persons/:id", (req, res, next) => {
 app.get("/info", (req, res, next) => {
   Person.estimatedDocumentCount({})
     .then((count) => {
-      const message = `<p>Phonebook has info for ${count} people</p>`
-        + `<p>${new Date()}</p>`;
+      const message =
+        `<p>Phonebook has info for ${count} people</p>` +
+        `<p>${new Date()}</p>`;
       res.send(message);
     })
     .catch((err) => {
@@ -122,7 +122,8 @@ app.post("/api/persons", createUpdateMiddlewares, (req, res, next) => {
 
           if (error.kind === "unique") {
             return `${field} already exists`;
-          } if (error.kind === "minlength") {
+          }
+          if (error.kind === "minlength") {
             const length = error.message.match(/length \((\d+)\)/)[1];
             return `${field} must be at least ${length} characters long`;
           }

@@ -10,10 +10,10 @@ const handleError = (err, res) => {
   res.status(statusCode).json({
     status: "error",
     statusCode,
-    messages
+    messages,
   });
 };
 module.exports = {
   ErrorHandler,
-  handleError
+  handleError,
 };

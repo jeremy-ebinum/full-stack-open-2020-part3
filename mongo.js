@@ -14,28 +14,28 @@ const url = `mongodb+srv://fso_2019:${password}@cluster0-opbwv.mongodb.net/phone
 
 mongoose
   .connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
-  .catch(err => {
+  .catch((err) => {
     console.error(err);
   });
 
-mongoose.connection.on("error", err => {
+mongoose.connection.on("error", (err) => {
   console.err(err);
 });
 
 const PersonSchema = mongoose.Schema({
   name: String,
-  number: String
+  number: String,
 });
 
 const Person = mongoose.model("Person", PersonSchema, "persons");
 
 if (process.argv.length === 3) {
   let count = 0;
-  Person.find({}).then(result => {
+  Person.find({}).then((result) => {
     console.log("phonebook:\n");
-    result.forEach(person => {
+    result.forEach((person) => {
       console.log(`${person.name} ${person.number}`);
-      count++;
+      count += 1;
     });
     mongoose.connection.close();
     console.log("\ntotal:", count);
@@ -45,15 +45,15 @@ if (process.argv.length === 3) {
 
 const person = new Person({
   name: process.argv[3],
-  number: process.argv[4]
+  number: process.argv[4],
 });
 
 person
   .save()
-  .then(result => {
+  .then((result) => {
     console.log(`added ${result.name} to phonebook`);
     mongoose.connection.close();
   })
-  .catch(err => {
+  .catch((err) => {
     console.error(err);
   });
